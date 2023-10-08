@@ -24,18 +24,18 @@ class PlayerPaymentService {
 
     void handle(PaymentInitialized event, UUID gameId, UUID organiserId) {
         UUID transactionId = transactionId(gameId, event.playerId());
-        var saga = new Saga(transactionId, gameId, event.playerId());
+        var saga = new PaymentSaga(transactionId, gameId, event.playerId());
         sagaRepository.save(saga);
         chargeProxy.charge(transactionId, event.playerId(), organiserId, event.charge(), event.debtAllowed());
     }
 
     void handle(ChargePaid event) {
-        Saga saga = sagaRepository.load(event.transactionId());
+        PaymentSaga saga = sagaRepository.load(event.transactionId());
         gameAccessor.manage(saga.gameId(), gameManager -> gameManager.confirmPayment(saga.playerId()));
     }
 
     void handle(ChargeFailed event) {
-        Saga saga = sagaRepository.load(event.transactionId());
+        PaymentSaga saga = sagaRepository.load(event.transactionId());
         gameAccessor.managePlayer(saga.gameId(), gameManager -> gameManager.signOutPlayer(saga.playerId()));
     }
 
@@ -58,11 +58,11 @@ class PlayerPaymentService {
     }
 
     interface SagaRepository {
-        void save(Saga saga);
-        Saga load(UUID transactionId);
+        void save(PaymentSaga paymentSaga);
+        PaymentSaga load(UUID transactionId);
         void delete(UUID transactionId);
     }
 
-    record Saga(UUID transactionId, UUID gameId, UUID playerId) {
+    record PaymentSaga(UUID transactionId, UUID gameId, UUID playerId) {
     }
 }

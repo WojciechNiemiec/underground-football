@@ -59,6 +59,10 @@ class Game implements GameManager, PlayerManager {
     public void finish(int homeScore, int guestScore) {
         state.ensureConfirmed();
         stream.append(new GameFinished(homeScore, guestScore));
+        if (settlementStrategy == SettlementStrategy.MANUAL && fee.value().compareTo(BigDecimal.ZERO) > 0) {
+            MoneyAmount charge = fee.divideBy(players.values().size());
+            players.values().forEach(player -> player.initializePayment(charge, settlementStrategy.isDebtAllowed()));
+        }
     }
 
     @Override
@@ -74,10 +78,6 @@ class Game implements GameManager, PlayerManager {
         state.ensureConfirmed();
         if (!players.containsKey(playerId)) {
             stream.append(new PlayerSignedUp(playerId));
-            if (fee.value().compareTo(BigDecimal.ZERO) > 0) {
-                MoneyAmount charge = fee.divideBy(players.size());
-                players.get(playerId).initializePayment(charge, settlementStrategy.isDebtAllowed());
-            }
         }
     }
 
@@ -90,8 +90,7 @@ class Game implements GameManager, PlayerManager {
         players.values()
                 .stream()
                 .filter(Player::isReserve)
-                .sorted(Comparator.comparing(Player::signedAt))
-                .findFirst()
+                .min(Comparator.comparing(Player::signedAt))
                 .ifPresent(Player::confirm);
     }
 
@@ -183,6 +182,9 @@ class Game implements GameManager, PlayerManager {
             SettlementStrategy settlementStrategy,
             int minPlayers,
             int maxPlayers) {
+        if (settlementStrategy == SettlementStrategy.AUTOMATIC) {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
         var init = new GameInitialized(organizerId, locationId, date, duration, settlementStrategy, minPlayers,
                 maxPlayers);
         stream.append(init);
