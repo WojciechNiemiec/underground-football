@@ -6,13 +6,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import football.underground.eventsourcing.Appender;
+import football.underground.wallet.api.ChargeProxy;
 import football.underground.wallet.api.MoneyAmount;
+import football.underground.wallet.api.MoneyRegistrar;
 import football.underground.wallet.event.ChargeFailed;
 import football.underground.wallet.event.ChargeInitiated;
 import football.underground.wallet.event.ChargePaid;
 import football.underground.wallet.event.MoneyRegistered;
 
-class Wallet {
+class Wallet implements MoneyRegistrar, ChargeProxy {
 
     private final Appender stream;
 
@@ -23,13 +25,20 @@ class Wallet {
         this.stream = stream;
     }
 
-    public void registerMoney(UUID creditorId, MoneyAmount moneyAmount) {
+    @Override
+    public void register(UUID creditorId, MoneyAmount moneyAmount) {
         // TODO: add idempotency or prevent duplicated calls
         stream.append(new MoneyRegistered(creditorId, moneyAmount));
         proceedPendingTransactions();
     }
 
-    public void charge(UUID transactionId, UUID creditorId, MoneyAmount moneyAmount, boolean debtAllowed) {
+    @Override
+    public void charge(
+            UUID transactionId,
+            UUID creditorId,
+            MoneyAmount moneyAmount,
+            boolean debtAllowed
+    ) {
         if (transactions.containsKey(transactionId)) {
             throw new IllegalStateException("Transaction already exists");
         }

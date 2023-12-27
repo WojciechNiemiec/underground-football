@@ -1,12 +1,6 @@
 package football.underground.game;
 
-import football.underground.eventsourcing.Appender;
-import football.underground.game.api.GameInitializer;
-import football.underground.game.api.SettlementStrategy;
-import football.underground.game.event.*;
-import football.underground.wallet.api.MoneyAmount;
-import football.underground.game.api.GameManager;
-import football.underground.game.api.PlayerManager;
+import static football.underground.game.Game.State.INITIALIZED;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -15,9 +9,25 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static football.underground.game.Game.State.INITIALIZED;
+import football.underground.eventsourcing.Appender;
+import football.underground.game.api.GameInitializer;
+import football.underground.game.api.GameManager;
+import football.underground.game.api.PlayerManager;
+import football.underground.game.api.SettlementStrategy;
+import football.underground.game.event.GameCancelled;
+import football.underground.game.event.GameConfirmed;
+import football.underground.game.event.GameFinished;
+import football.underground.game.event.GameInitialized;
+import football.underground.game.event.PaymentConfirmed;
+import football.underground.game.event.PaymentInitialized;
+import football.underground.game.event.PlayerConfirmed;
+import football.underground.game.event.PlayerMarkedReserve;
+import football.underground.game.event.PlayerSignedOut;
+import football.underground.game.event.PlayerSignedUp;
+import football.underground.game.event.TeamsDefined;
+import football.underground.wallet.api.MoneyAmount;
 
-class Game implements GameManager, PlayerManager {
+class Game implements GameInitializer, GameManager, PlayerManager {
     private final Appender stream;
 
     private State state;
@@ -33,6 +43,28 @@ class Game implements GameManager, PlayerManager {
 
     Game(Appender appender) {
         this.stream = appender;
+    }
+
+    @Override
+    public void initialize(
+            UUID organizerId,
+            UUID locationId,
+            Instant date,
+            Duration duration,
+            SettlementStrategy settlementStrategy,
+            int minPlayers,
+            int maxPlayers
+    ) {
+        if (state != null) {
+            throw new IllegalStateException("Game already initialized");
+        }
+        if (settlementStrategy == SettlementStrategy.AUTOMATIC) {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
+        var init = new GameInitialized(organizerId, locationId, date, duration, settlementStrategy, minPlayers,
+                maxPlayers
+        );
+        stream.append(init);
     }
 
     @Override
@@ -61,7 +93,9 @@ class Game implements GameManager, PlayerManager {
         stream.append(new GameFinished(homeScore, guestScore));
         if (settlementStrategy == SettlementStrategy.MANUAL && fee.value().compareTo(BigDecimal.ZERO) > 0) {
             MoneyAmount charge = fee.divideBy(players.values().size());
-            players.values().forEach(player -> player.initializePayment(charge, settlementStrategy.isDebtAllowed()));
+            players.values().forEach(player -> player.initializePayment(charge, organizerId,
+                    settlementStrategy.isDebtAllowed()
+            ));
         }
     }
 
@@ -172,36 +206,6 @@ class Game implements GameManager, PlayerManager {
 
     void handle(PaymentConfirmed event) {
         players.get(event.playerId()).handlePaymentConfirmed();
-    }
-
-    private void initialize(
-            UUID organizerId,
-            UUID locationId,
-            Instant date,
-            Duration duration,
-            SettlementStrategy settlementStrategy,
-            int minPlayers,
-            int maxPlayers) {
-        if (settlementStrategy == SettlementStrategy.AUTOMATIC) {
-            throw new UnsupportedOperationException("Not implemented yet");
-        }
-        var init = new GameInitialized(organizerId, locationId, date, duration, settlementStrategy, minPlayers,
-                maxPlayers);
-        stream.append(init);
-    }
-
-    record Initializer(Appender appender) implements GameInitializer {
-        @Override
-        public void initialize(
-                UUID organizerId,
-                UUID locationId,
-                Instant date,
-                Duration duration,
-                SettlementStrategy settlementStrategy,
-                int minPlayers,
-                int maxPlayers) {
-            new Game(appender).initialize(organizerId, locationId, date, duration, settlementStrategy, minPlayers, maxPlayers);
-        }
     }
 
     enum State {

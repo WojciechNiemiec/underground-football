@@ -46,12 +46,12 @@ class Player {
         stream.append(new PlayerMarkedReserve(playerId));
     }
 
-    void initializePayment(MoneyAmount fee, boolean debtAllowed) {
+    void initializePayment(MoneyAmount fee, UUID organizerId, boolean debtAllowed) {
         if (playStatus != CONFIRMED) {
             throw new IllegalStateException("Player must be confirmed to play");
         }
         switch (paymentStatus) {
-            case UNPAID -> stream.append(new PaymentInitialized(playerId, fee, debtAllowed));
+            case UNPAID -> stream.append(new PaymentInitialized(playerId, organizerId, fee, debtAllowed));
             case INITIALIZED -> {}
             case COMPLETED -> throw new IllegalStateException("Game has already been paid");
         }

@@ -4,5 +4,5 @@ import football.underground.wallet.api.MoneyAmount;
 
 import java.util.UUID;
 
-public record PaymentInitialized(UUID playerId, MoneyAmount charge, boolean debtAllowed) {
+public record PaymentInitialized(UUID playerId, UUID organiserId, MoneyAmount charge, boolean debtAllowed) {
 }

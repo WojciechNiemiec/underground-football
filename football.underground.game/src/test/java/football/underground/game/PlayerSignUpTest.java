@@ -1,35 +1,41 @@
 package football.underground.game;
 
-import football.underground.eventsourcing.EventStream;
-import football.underground.game.api.SettlementStrategy;
-import football.underground.game.event.*;
-import football.underground.wallet.api.MoneyAmount;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static java.util.UUID.nameUUIDFromBytes;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import football.underground.eventsourcing.EventStream;
+import football.underground.game.api.SettlementStrategy;
+import football.underground.game.event.GameConfirmed;
+import football.underground.game.event.GameInitialized;
+import football.underground.game.event.PlayerConfirmed;
+import football.underground.game.event.PlayerMarkedReserve;
+import football.underground.game.event.PlayerSignedOut;
+import football.underground.game.event.PlayerSignedUp;
+import football.underground.wallet.api.MoneyAmount;
 
 class PlayerSignUpTest {
-
-    private EventStream<UUID, Game> eventStream;
+    private EventStream<Game, UUID> eventStream;
     private Game game;
 
     @BeforeEach
     void setup() {
-        eventStream = new EventStream<>(UUID.nameUUIDFromBytes("a".getBytes()), new AggregateConfiguration());
-        game = eventStream.load(Game::new);
+        eventStream = new EventStream<>(nameUUIDFromBytes("a".getBytes()), new AggregateConfiguration(), Game::new);
+        game = eventStream.load();
     }
 
     @Test
     void signUp_shouldSign_whenGameConfirmed() {
-        UUID organizer = UUID.nameUUIDFromBytes("organizer".getBytes());
-        UUID location = UUID.nameUUIDFromBytes("location".getBytes());
-        UUID player = UUID.nameUUIDFromBytes("player".getBytes());
+        UUID organizer = nameUUIDFromBytes("organizer".getBytes());
+        UUID location = nameUUIDFromBytes("location".getBytes());
+        UUID player = nameUUIDFromBytes("player".getBytes());
 
         game.handle(new GameInitialized(
                 organizer,
@@ -51,9 +57,9 @@ class PlayerSignUpTest {
 
     @Test
     void confirmation_shouldConfirm_whenPlayerSigned() {
-        UUID organizer = UUID.nameUUIDFromBytes("organizer".getBytes());
-        UUID location = UUID.nameUUIDFromBytes("location".getBytes());
-        UUID player = UUID.nameUUIDFromBytes("player".getBytes());
+        UUID organizer = nameUUIDFromBytes("organizer".getBytes());
+        UUID location = nameUUIDFromBytes("location".getBytes());
+        UUID player = nameUUIDFromBytes("player".getBytes());
 
         game.handle(new GameInitialized(
                 organizer,
@@ -76,11 +82,11 @@ class PlayerSignUpTest {
 
     @Test
     void confirmation_shouldMarkReserve_whenPlayersOverloaded() {
-        UUID organizer = UUID.nameUUIDFromBytes("organizer".getBytes());
-        UUID location = UUID.nameUUIDFromBytes("location".getBytes());
-        UUID player1 = UUID.nameUUIDFromBytes("player1".getBytes());
-        UUID player2 = UUID.nameUUIDFromBytes("player2".getBytes());
-        UUID player3 = UUID.nameUUIDFromBytes("player3".getBytes());
+        UUID organizer = nameUUIDFromBytes("organizer".getBytes());
+        UUID location = nameUUIDFromBytes("location".getBytes());
+        UUID player1 = nameUUIDFromBytes("player1".getBytes());
+        UUID player2 = nameUUIDFromBytes("player2".getBytes());
+        UUID player3 = nameUUIDFromBytes("player3".getBytes());
 
         game.handle(new GameInitialized(
                 organizer,
@@ -107,11 +113,11 @@ class PlayerSignUpTest {
 
     @Test
     void signOut_shouldConfirmFirstReservePlayer() {
-        UUID organizer = UUID.nameUUIDFromBytes("organizer".getBytes());
-        UUID location = UUID.nameUUIDFromBytes("location".getBytes());
-        UUID player1 = UUID.nameUUIDFromBytes("player1".getBytes());
-        UUID player2 = UUID.nameUUIDFromBytes("player2".getBytes());
-        UUID player3 = UUID.nameUUIDFromBytes("player3".getBytes());
+        UUID organizer = nameUUIDFromBytes("organizer".getBytes());
+        UUID location = nameUUIDFromBytes("location".getBytes());
+        UUID player1 = nameUUIDFromBytes("player1".getBytes());
+        UUID player2 = nameUUIDFromBytes("player2".getBytes());
+        UUID player3 = nameUUIDFromBytes("player3".getBytes());
 
         game.handle(new GameInitialized(
                 organizer,
