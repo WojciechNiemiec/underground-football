@@ -1,14 +1,16 @@
-import football.underground.wallet.api.WalletAccessorFactory;
+import football.underground.game.GameServicesFactoryImpl;
+import football.underground.game.api.GameServicesFactory;
+import football.underground.wallet.api.WalletServicesFactory;
 
 module football.underground.game {
     exports football.underground.game.api;
     exports football.underground.game.spi;
 
-    provides football.underground.game.api.GameAccessorFactory
-            with football.underground.game.GameAccessorFactoryImpl;
+    provides GameServicesFactory
+            with GameServicesFactoryImpl;
 
     requires football.underground.eventsourcing;
     requires football.underground.wallet;
 
-    uses WalletAccessorFactory;
+    uses WalletServicesFactory;
 }

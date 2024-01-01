@@ -112,9 +112,9 @@ class Wallet implements MoneyRegistrar, ChargeProxy {
 
         void proceed() {
             if (isPending()) {
-                if (debtAllowed || potsByCreditor.get(creditorId).canCover(amount)) {
+                if (potsByCreditor.computeIfAbsent(creditorId, wallet -> new Pot()).canCover(amount)) {
                     stream.append(new ChargePaid(transactionId));
-                } else {
+                } else if (!debtAllowed) {
                     stream.append(new ChargeFailed(transactionId));
                 }
             }

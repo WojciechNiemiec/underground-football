@@ -32,7 +32,6 @@ public class EventStream<T, ID> implements Appender {
         this.subscriber = new EventSourcingSubscriber<>(aggregate);
         configuration.registerHandlers(subscriber);
         this.clock = configuration.getClock();
-        this.events.forEach(this::handle);
     }
 
     @Override

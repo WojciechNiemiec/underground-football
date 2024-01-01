@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import football.underground.eventsourcing.Appender;
@@ -39,7 +40,7 @@ class Game implements GameInitializer, GameManager, PlayerManager {
     private MoneyAmount fee;
     private int minPlayers;
     private int maxPlayers;
-    private final HashMap<UUID, Player> players = new HashMap<>();
+    private final Map<UUID, Player> players = new HashMap<>();
 
     Game(Appender appender) {
         this.stream = appender;
@@ -58,7 +59,7 @@ class Game implements GameInitializer, GameManager, PlayerManager {
         if (state != null) {
             throw new IllegalStateException("Game already initialized");
         }
-        if (settlementStrategy == SettlementStrategy.AUTOMATIC) {
+        if (settlementStrategy != SettlementStrategy.MANUAL) {
             throw new UnsupportedOperationException("Not implemented yet");
         }
         var init = new GameInitialized(organizerId, locationId, date, duration, settlementStrategy, minPlayers,
@@ -92,8 +93,11 @@ class Game implements GameInitializer, GameManager, PlayerManager {
         state.ensureConfirmed();
         stream.append(new GameFinished(homeScore, guestScore));
         if (settlementStrategy == SettlementStrategy.MANUAL && fee.value().compareTo(BigDecimal.ZERO) > 0) {
-            MoneyAmount charge = fee.divideBy(players.values().size());
-            players.values().forEach(player -> player.initializePayment(charge, organizerId,
+            MoneyAmount charge = fee.divideBy((int) players.values().stream().filter(Player::isConfirmed).count());
+            players.values()
+                    .stream()
+                    .filter(Player::isConfirmed)
+                    .forEach(player -> player.initializePayment(charge, organizerId,
                     settlementStrategy.isDebtAllowed()
             ));
         }

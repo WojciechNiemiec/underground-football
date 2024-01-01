@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import football.underground.eventsourcing.exception.IncorrectHandlerException;
-
 public class EventSourcingSubscriber<T, ID> {
     private final T entity;
     private final Map<Class<?>, HandlerExecutor<?>> handlers = new HashMap<>();

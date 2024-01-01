@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-class InMemorySagaRepository implements SagaRepository {
+class InMemoryPaymentSagaRepository implements PaymentSagaRepository {
     private final Map<UUID, PaymentSaga> sagas = new HashMap<>();
 
     @Override
