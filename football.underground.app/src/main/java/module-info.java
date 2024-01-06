@@ -14,12 +14,17 @@ module football.underground.app {
     requires football.underground.game;
     requires football.underground.wallet;
 
+    requires org.mongodb.bson;
+    requires org.mongodb.driver.core;
+    requires org.mongodb.driver.sync.client;
+
+    requires org.slf4j;
+
     requires spring.beans;
     requires spring.boot;
     requires spring.boot.autoconfigure;
     requires spring.context;
     requires spring.core;
-    requires spring.data.commons;
     requires spring.web;
 
     uses GameServicesFactory;

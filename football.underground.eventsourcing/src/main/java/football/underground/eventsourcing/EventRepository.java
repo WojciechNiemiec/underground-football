@@ -7,7 +7,7 @@ public interface EventRepository<ID> {
 
     List<Event<ID>> load(ID aggregateId);
 
-    <T> void subscribe(T service, EventSourcingConfiguration<T, ID> configuration);
+    <T> void subscribe(T entity, EventSourcingConfiguration<T, ID> configuration);
 
     static <ID> EventRepository<ID> inMemory() {
         return new InMemoryEventRepository<>();

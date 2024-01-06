@@ -1,18 +1,19 @@
 package football.underground.game.spi;
 
-import static football.underground.game.api.GameProjection.GameInfo;
 import static football.underground.game.api.GameProjection.GamePage;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-class InMemoryGameProjectionRepository implements GameProjectionRepository {
-    private final Map<UUID, GameInfo> games = new HashMap<>();
+import football.underground.game.api.GameProjection;
+
+class InMemoryGameInfoRepository implements GameInfoRepository {
+    private final Map<UUID, GameProjection.GameInfo> games = new HashMap<>();
 
     @Override
-    public void save(GameInfo game) {
-        games.put(game.getId(), game);
+    public void save(GameProjection.GameInfo game) {
+        games.put(game.getGameId(), game);
     }
 
     @Override
@@ -21,7 +22,7 @@ class InMemoryGameProjectionRepository implements GameProjectionRepository {
     }
 
     @Override
-    public GameInfo getGame(UUID gameId) {
+    public GameProjection.GameInfo getGame(UUID gameId) {
         return games.get(gameId);
     }
 
@@ -42,7 +43,7 @@ class InMemoryGameProjectionRepository implements GameProjectionRepository {
         return new GamePage(page, pageSize, count / pageSize, count, content);
     }
 
-    private boolean match(GameInfo game, String state, UUID locationId, UUID organizerId) {
+    private boolean match(GameProjection.GameInfo game, String state, UUID locationId, UUID organizerId) {
         return (state == null || state.equals(game.getState()))
                && (locationId == null || locationId.equals(game.getLocationId()))
                && (organizerId == null || organizerId.equals(game.getOrganizerId()));

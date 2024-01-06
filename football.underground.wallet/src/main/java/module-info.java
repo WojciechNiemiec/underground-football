@@ -6,6 +6,9 @@ module football.underground.wallet {
     exports football.underground.wallet.event;
     exports football.underground.wallet.spi;
 
+    opens football.underground.wallet.api;
+    opens football.underground.wallet.event;
+
     provides WalletServicesFactory
             with WalletServicesFactoryImpl;
 

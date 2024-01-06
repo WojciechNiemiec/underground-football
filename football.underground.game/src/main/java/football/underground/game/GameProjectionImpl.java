@@ -7,6 +7,7 @@ import static football.underground.game.api.GameProjection.PlayStatus.CONFIRMED;
 import static football.underground.game.api.GameProjection.PlayStatus.PENDING;
 import static football.underground.game.api.GameProjection.PlayStatus.RESERVE;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import football.underground.game.api.GameProjection;
@@ -19,12 +20,12 @@ import football.underground.game.event.PlayerMarkedReserve;
 import football.underground.game.event.PlayerSignedOut;
 import football.underground.game.event.PlayerSignedUp;
 import football.underground.game.event.TeamsDefined;
-import football.underground.game.spi.GameProjectionRepository;
+import football.underground.game.spi.GameInfoRepository;
 
 class GameProjectionImpl implements GameProjection {
-    private final GameProjectionRepository repository;
+    private final GameInfoRepository repository;
 
-    GameProjectionImpl(GameProjectionRepository repository) {
+    GameProjectionImpl(GameInfoRepository repository) {
         this.repository = repository;
     }
 
@@ -39,16 +40,18 @@ class GameProjectionImpl implements GameProjection {
     }
 
     void handle(GameInitialized event, UUID gameId) {
-        var details = new GameInfo(
-                gameId,
-                event.organizerId(),
-                event.locationId(),
-                event.date(),
-                event.duration(),
-                event.settlementStrategy(),
-                event.minPlayers(),
-                event.maxPlayers()
-        );
+        var details = new GameInfo();
+
+        details.setGameId(gameId);
+        details.setOrganizerId(event.organizerId());
+        details.setLocationId(event.locationId());
+        details.setDate(event.date());
+        details.setDuration(event.duration());
+        details.setSettlementStrategy(event.settlementStrategy());
+        details.setMinPlayers(event.minPlayers());
+        details.setMaxPlayers(event.maxPlayers());
+        details.setPlayers(new HashMap<>());
+        details.setState("INITIALIZED");
 
         repository.save(details);
     }
@@ -81,7 +84,10 @@ class GameProjectionImpl implements GameProjection {
     void handle(PlayerSignedUp event, UUID gameId) {
         var game = repository.getGame(gameId);
 
-        game.getPlayers().put(event.playerId(), new PlayerInfo(event.playerId(), PENDING, UNPAID));
+        game.getPlayers().put(
+                event.playerId().toString(),
+                new PlayerInfo(event.playerId().toString(), PENDING, UNPAID)
+        );
 
         repository.save(game);
     }
@@ -98,7 +104,7 @@ class GameProjectionImpl implements GameProjection {
         var game = repository.getGame(gameId);
 
         game.getPlayers().computeIfPresent(
-                event.playerId(),
+                event.playerId().toString(),
                 (uuid, playerInfo) -> new PlayerInfo(uuid, CONFIRMED, playerInfo.paymentStatus())
         );
 
@@ -109,7 +115,7 @@ class GameProjectionImpl implements GameProjection {
         var game = repository.getGame(gameId);
 
         game.getPlayers().computeIfPresent(
-                event.playerId(),
+                event.playerId().toString(),
                 (uuid, playerInfo) -> new PlayerInfo(uuid, RESERVE, playerInfo.paymentStatus())
         );
 
@@ -120,7 +126,7 @@ class GameProjectionImpl implements GameProjection {
         var game = repository.getGame(gameId);
 
         game.getPlayers().computeIfPresent(
-                event.playerId(),
+                event.playerId().toString(),
                 (uuid, playerInfo) -> new PlayerInfo(uuid, playerInfo.playStatus(), INITIALIZED)
         );
 
@@ -131,7 +137,7 @@ class GameProjectionImpl implements GameProjection {
         var game = repository.getGame(gameId);
 
         game.getPlayers().computeIfPresent(
-                event.playerId(),
+                event.playerId().toString(),
                 (uuid, playerInfo) -> new PlayerInfo(uuid, playerInfo.playStatus(), COMPLETED)
         );
 

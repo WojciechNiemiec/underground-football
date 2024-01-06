@@ -2,7 +2,6 @@ package football.underground.game.api;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,104 +22,118 @@ public interface GameProjection {
     }
 
     class GameInfo {
-        private final UUID id;
-        private final UUID organizerId;
-        private final UUID locationId;
-        private final Instant date;
-        private final Duration duration;
-        private final SettlementStrategy settlementStrategy;
-        private final int minPlayers;
-        private final int maxPlayers;
-        private final Map<UUID, PlayerInfo> players;
+        private UUID gameId;
+        private UUID organizerId;
+        private UUID locationId;
+        private Instant date;
+        private Duration duration;
+        private SettlementStrategy settlementStrategy;
+        private int minPlayers;
+        private int maxPlayers;
+        private Map<String, PlayerInfo> players;
         private String state;
         private MoneyAmount fee;
         private UUID homeTeamId;
         private UUID guestTeamId;
 
-        public GameInfo(
-                UUID id,
-                UUID organizerId,
-                UUID locationId,
-                Instant date,
-                Duration duration,
-                SettlementStrategy settlementStrategy,
-                int minPlayers,
-                int maxPlayers
-        ) {
-            this.id = id;
-            this.organizerId = organizerId;
-            this.locationId = locationId;
-            this.date = date;
-            this.duration = duration;
-            this.settlementStrategy = settlementStrategy;
-            this.minPlayers = minPlayers;
-            this.maxPlayers = maxPlayers;
-            this.players = new HashMap<>();
-            this.state = "INITIALIZED";
+        public UUID getGameId() {
+            return gameId;
         }
 
-        public UUID getId() {
-            return id;
+        public void setGameId(UUID gameId) {
+            this.gameId = gameId;
         }
 
         public UUID getOrganizerId() {
             return organizerId;
         }
 
+        public void setOrganizerId(UUID organizerId) {
+            this.organizerId = organizerId;
+        }
+
         public UUID getLocationId() {
             return locationId;
+        }
+
+        public void setLocationId(UUID locationId) {
+            this.locationId = locationId;
         }
 
         public Instant getDate() {
             return date;
         }
 
+        public void setDate(Instant date) {
+            this.date = date;
+        }
+
         public Duration getDuration() {
             return duration;
+        }
+
+        public void setDuration(Duration duration) {
+            this.duration = duration;
         }
 
         public SettlementStrategy getSettlementStrategy() {
             return settlementStrategy;
         }
 
+        public void setSettlementStrategy(SettlementStrategy settlementStrategy) {
+            this.settlementStrategy = settlementStrategy;
+        }
+
         public int getMinPlayers() {
             return minPlayers;
+        }
+
+        public void setMinPlayers(int minPlayers) {
+            this.minPlayers = minPlayers;
         }
 
         public int getMaxPlayers() {
             return maxPlayers;
         }
 
-        public Map<UUID, PlayerInfo> getPlayers() {
-            return players;
+        public void setMaxPlayers(int maxPlayers) {
+            this.maxPlayers = maxPlayers;
         }
 
         public String getState() {
             return state;
         }
 
-        public MoneyAmount getFee() {
-            return fee;
+        public Map<String, PlayerInfo> getPlayers() {
+            return players;
         }
 
-        public UUID getHomeTeamId() {
-            return homeTeamId;
-        }
-
-        public UUID getGuestTeamId() {
-            return guestTeamId;
+        public void setPlayers(Map<String, PlayerInfo> players) {
+            this.players = players;
         }
 
         public void setState(String state) {
             this.state = state;
         }
 
+        public MoneyAmount getFee() {
+            return fee;
+        }
+
         public void setFee(MoneyAmount fee) {
             this.fee = fee;
         }
 
+        public UUID getHomeTeamId() {
+            return homeTeamId;
+        }
+
         public void setHomeTeamId(UUID homeTeamId) {
             this.homeTeamId = homeTeamId;
+        }
+
+        public UUID getGuestTeamId() {
+            return guestTeamId;
         }
 
         public void setGuestTeamId(UUID guestTeamId) {
@@ -129,7 +142,7 @@ public interface GameProjection {
     }
 
     record PlayerInfo(
-            UUID id,
+            String id,
             PlayStatus playStatus,
             PaymentStatus paymentStatus) {
     }

@@ -6,6 +6,9 @@ module football.underground.game {
     exports football.underground.game.api;
     exports football.underground.game.spi;
 
+    opens football.underground.game.api;
+    opens football.underground.game.event;
+
     provides GameServicesFactory
             with GameServicesFactoryImpl;
 

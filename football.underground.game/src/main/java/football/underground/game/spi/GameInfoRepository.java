@@ -5,7 +5,7 @@ import java.util.UUID;
 import football.underground.game.api.GameProjection.GameInfo;
 import football.underground.game.api.GameProjection.GamePage;
 
-public interface GameProjectionRepository {
+public interface GameInfoRepository {
     void save(GameInfo game);
 
     void delete(UUID gameId);
@@ -14,7 +14,7 @@ public interface GameProjectionRepository {
 
     GamePage getGames(int page, int pageSize, String state, UUID locationId, UUID organizerId);
 
-    static GameProjectionRepository inMemory() {
-        return new InMemoryGameProjectionRepository();
+    static GameInfoRepository inMemory() {
+        return new InMemoryGameInfoRepository();
     }
 }
