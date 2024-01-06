@@ -33,10 +33,12 @@ class AppConfiguration implements DisposableBean {
         mongoClient = MongoClientFactory.create(mongoUri);
         database = mongoClient.getDatabase("underground-football");
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        eventRepository = new MongoEventRepository(
+        eventRepository = new MongoEventRepository<>(
                 database,
                 Executors.newSingleThreadExecutor(),
-                new ObjectSerializer(objectMapper)
+                new ObjectSerializer(objectMapper),
+                UUID::toString,
+                UUID::fromString
         );
     }
 

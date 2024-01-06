@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 import org.bson.codecs.pojo.annotations.BsonId;
@@ -26,7 +25,7 @@ import football.underground.eventsourcing.EventRepository;
 import football.underground.eventsourcing.EventSourcingConfiguration;
 import football.underground.eventsourcing.EventSourcingSubscriber;
 
-class MongoEventRepository implements EventRepository<UUID> {
+class MongoEventRepository<ID> implements EventRepository<ID> {
     private static final Logger LOG = LoggerFactory.getLogger(MongoEventRepository.class);
 
     private static final String EVENTS = "events";
@@ -38,27 +37,33 @@ class MongoEventRepository implements EventRepository<UUID> {
     private final MongoCollection<Head> headCollection;
     private final ExecutorService executorService;
     private final ObjectSerializer serializer;
+    private final IDCoder<ID> idCoder;
+    private final IDDecoder<ID> idDecoder;
 
-    private final Map<String, EventSourcingSubscriber<?, UUID>> subscribers = new HashMap<>();
+    private final Map<String, EventSourcingSubscriber<?, ID>> subscribers = new HashMap<>();
 
     public MongoEventRepository(
             MongoDatabase database,
             ExecutorService executorService,
-            ObjectSerializer serializer
+            ObjectSerializer serializer,
+            IDCoder<ID> idCoder,
+            IDDecoder<ID> idDecoder
     ) {
         this.eventCollection = database.getCollection(EVENTS, EventDocument.class);
         this.headCollection = database.getCollection(HEADS, Head.class);
         this.executorService = executorService;
         this.serializer = serializer;
+        this.idCoder = idCoder;
+        this.idDecoder = idDecoder;
     }
 
     @Override
-    public void save(List<Event<UUID>> events) {
+    public void save(List<Event<ID>> events) {
         List<EventDocument> documents = events.stream()
                 .map(event -> new EventDocument(
                         null,
                         event.aggregateType(),
-                        event.aggregateId(),
+                        idCoder.encode(event.aggregateId()),
                         event.timestamp(),
                         event.payload().getClass().getCanonicalName(),
                         serializer.asString(event.payload())
@@ -74,22 +79,22 @@ class MongoEventRepository implements EventRepository<UUID> {
     }
 
     @Override
-    public List<Event<UUID>> load(UUID aggregateId) {
-        return eventCollection.find(new BasicDBObject("aggregateId", aggregateId))
+    public List<Event<ID>> load(ID aggregateId) {
+        return eventCollection.find(new BasicDBObject("aggregateId", idCoder.encode(aggregateId)))
                 .map(this::asEvent)
                 .into(new ArrayList<>());
     }
 
     @Override
-    public <T> void subscribe(T entity, EventSourcingConfiguration<T, UUID> configuration) {
+    public <T> void subscribe(T entity, EventSourcingConfiguration<T, ID> configuration) {
         var subscriptionId = entity.getClass().getCanonicalName();
-        var subscriber = new EventSourcingSubscriber<T, UUID>(entity);
+        var subscriber = new EventSourcingSubscriber<T, ID>(entity);
         configuration.registerHandlers(subscriber);
         subscribers.put(subscriptionId, subscriber);
         processEvents(subscriptionId, subscriber);
     }
 
-    private void processEvents(String subscriptionId, EventSourcingSubscriber<?, UUID> subscriber) {
+    private void processEvents(String subscriptionId, EventSourcingSubscriber<?, ID> subscriber) {
         // todo: create transaction
         boolean finished;
 
@@ -117,7 +122,7 @@ class MongoEventRepository implements EventRepository<UUID> {
             }
 
             eventDocuments.forEach(document -> {
-                Event<UUID> event = asEvent(document);
+                Event<ID> event = asEvent(document);
                 subscriber.getHandlerExecutor(event).ifPresent(handler -> handler.execute(event));
             });
             releaseAndMoveHead(subscriptionId, eventDocuments);
@@ -178,10 +183,10 @@ class MongoEventRepository implements EventRepository<UUID> {
         );
     }
 
-    private Event<UUID> asEvent(EventDocument eventDocument) {
+    private Event<ID> asEvent(EventDocument eventDocument) {
         return new Event<>(
                 eventDocument.aggregateType(),
-                eventDocument.aggregateId(),
+                idDecoder.decode(eventDocument.aggregateId()),
                 eventDocument.timestamp(),
                 serializer.fromString(eventDocument.payloadType(), eventDocument.payload())
         );
@@ -191,7 +196,7 @@ class MongoEventRepository implements EventRepository<UUID> {
             @BsonId
             ObjectId eventId,
             String aggregateType,
-            UUID aggregateId,
+            String aggregateId,
             Instant timestamp,
             String payloadType,
             String payload
@@ -204,5 +209,13 @@ class MongoEventRepository implements EventRepository<UUID> {
             boolean locked,
             List<ObjectId> eventIds
     ) {
+    }
+
+    interface IDDecoder<ID> {
+        ID decode(String id);
+    }
+
+    interface IDCoder<ID> {
+        String encode(ID id);
     }
 }
