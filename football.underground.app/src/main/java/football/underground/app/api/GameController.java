@@ -4,25 +4,24 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
 import football.underground.game.api.GameAccessor;
 import football.underground.game.api.GameProjection;
 import football.underground.game.api.GameProjection.GamePage;
 import football.underground.game.api.SettlementStrategy;
 import football.underground.wallet.api.MoneyAmount;
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Header;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.annotation.Status;
 
-@RestController
-@RequestMapping("/game-api/v1-beta")
+@Controller("/game-api/v1-beta")
 class GameController {
     private final GameAccessor gameAccessor;
     private final GameProjection gameProjection;
@@ -32,14 +31,20 @@ class GameController {
         this.gameProjection = gameProjection;
     }
 
-    @GetMapping("/games")
-    GamePage lookup() {
-        return gameProjection.getGames(0, 100, null, null, null);
+    @Get("/games")
+    GamePage lookup(
+            @QueryValue(defaultValue = "0") int page,
+            @QueryValue(defaultValue = "100") int pageSize,
+            @QueryValue String state,
+            @QueryValue UUID locationId,
+            @QueryValue UUID organizerId
+    ) {
+        return gameProjection.getGames(page, pageSize, state, locationId, organizerId);
     }
 
-    @PostMapping("/games")
-    @ResponseStatus(HttpStatus.CREATED)
-    GameResponse create(@RequestBody GameRequest request, @RequestHeader("X-Identity-Id") UUID identityId) {
+    @Post("/games")
+    @Status(HttpStatus.CREATED)
+    GameResponse create(@Body GameRequest request, @Header("X-Identity-Id") UUID identityId) {
         UUID gameId = UUID.randomUUID();
 
         gameAccessor.gameInitializer(gameId).initialize(
@@ -55,24 +60,24 @@ class GameController {
         return new GameResponse(gameId);
     }
 
-    @PostMapping("/games/{gameId}/cancellations")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    void cancel(@PathVariable("gameId") UUID gameId, @RequestBody GameCancellation request) {
+    @Post("/games/{gameId}/cancellations")
+    @Status(HttpStatus.ACCEPTED)
+    void cancel(@PathVariable("gameId") UUID gameId, @Body GameCancellation request) {
         gameAccessor.gameManager(gameId).cancel(request.reason());
     }
 
-    @PostMapping("/games/{gameId}/confirmations")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    void confirm(@PathVariable("gameId") UUID gameId, @RequestBody GameConfirmation confirmation) {
+    @Post("/games/{gameId}/confirmations")
+    @Status(HttpStatus.ACCEPTED)
+    void confirm(@PathVariable("gameId") UUID gameId, @Body GameConfirmation confirmation) {
         gameAccessor.gameManager(gameId).confirm(confirmation.fee());
     }
 
-    @PostMapping("/games/{gameId}/players/{playerId}/confirmations")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Post("/games/{gameId}/players/{playerId}/confirmations")
+    @Status(HttpStatus.ACCEPTED)
     void confirmPlayer(
             @PathVariable("gameId") UUID gameId,
             @PathVariable("playerId") UUID playerId,
-            @RequestBody PlayerConfirmation request
+            @Body PlayerConfirmation request
     ) {
         var gameManager = gameAccessor.gameManager(gameId);
 
@@ -82,36 +87,41 @@ class GameController {
         }
     }
 
-    @PostMapping("/games/{gameId}/registrations")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    void register(@PathVariable("gameId") UUID gameId, @RequestHeader("X-Identity-Id") UUID identityId) {
+    @Post("/games/{gameId}/registrations")
+    @Status(HttpStatus.ACCEPTED)
+    void register(@PathVariable("gameId") UUID gameId, @Header("X-Identity-Id") UUID identityId) {
         gameAccessor.playerManager(gameId).signUpPlayer(identityId);
     }
 
-    @DeleteMapping("/games/{gameId}/registrations")
-    void unregister(@PathVariable("gameId") UUID gameId, @RequestHeader("X-Identity-Id") UUID identityId) {
+    @Delete("/games/{gameId}/registrations")
+    void unregister(@PathVariable("gameId") UUID gameId, @Header("X-Identity-Id") UUID identityId) {
         gameAccessor.playerManager(gameId).signOutPlayer(identityId);
     }
 
-    @PostMapping("/games/{gameId}/results")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    void finish(@PathVariable("gameId") UUID gameId, @RequestBody GameResult request) {
+    @Post("/games/{gameId}/results")
+    @Status(HttpStatus.ACCEPTED)
+    void finish(@PathVariable("gameId") UUID gameId, @Body GameResult request) {
         gameAccessor.gameManager(gameId).finish(request.homeScore(), request.guestScore());
     }
 
+    @Introspected
     record GameCancellation(String reason) {
     }
 
+    @Introspected
     record GameConfirmation(MoneyAmount fee) {
     }
 
+    @Introspected
     record GameResult(int homeScore, int guestScore) {
     }
 
+    @Introspected
     record GameResponse(
             UUID gameId) {
     }
 
+    @Introspected
     record GameRequest(
             UUID locationId,
             Instant date,
@@ -121,6 +131,7 @@ class GameController {
             int maxPlayers) {
     }
 
+    @Introspected
     record PlayerConfirmation(String confirmationType) {
         private static final String PLAY_CONFIRMATION = "play";
         private static final String PAYMENT_CONFIRMATION = "payment";

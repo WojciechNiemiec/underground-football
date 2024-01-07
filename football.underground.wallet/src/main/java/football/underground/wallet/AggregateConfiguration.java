@@ -2,7 +2,6 @@ package football.underground.wallet;
 
 import java.util.UUID;
 
-import football.underground.eventsourcing.Appender;
 import football.underground.eventsourcing.EventSourcingConfiguration;
 import football.underground.eventsourcing.EventSourcingSubscriber;
 import football.underground.wallet.event.ChargeFailed;

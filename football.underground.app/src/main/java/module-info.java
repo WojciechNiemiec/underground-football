@@ -14,18 +14,19 @@ module football.underground.app {
     requires football.underground.game;
     requires football.underground.wallet;
 
+    requires io.micronaut.context;
+    requires io.micronaut.http;
+    requires io.micronaut.core;
+    requires io.micronaut.inject;
+
+    requires jakarta.annotation;
+    requires jakarta.inject;
+
     requires org.mongodb.bson;
     requires org.mongodb.driver.core;
     requires org.mongodb.driver.sync.client;
 
     requires org.slf4j;
-
-    requires spring.beans;
-    requires spring.boot;
-    requires spring.boot.autoconfigure;
-    requires spring.context;
-    requires spring.core;
-    requires spring.web;
 
     uses GameServicesFactory;
     uses WalletServicesFactory;

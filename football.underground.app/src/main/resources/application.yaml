@@ -1,3 +1,0 @@
-app:
-  mongo:
-    uri: mongodb://localhost:27017/?retryWrites=false

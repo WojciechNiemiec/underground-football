@@ -2,6 +2,7 @@ package football.underground.app.infrastructure;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -170,7 +171,9 @@ class MongoEventRepository<ID> implements EventRepository<ID> {
     private void releaseAndMoveHead(String subscriptionId, List<EventDocument> eventDocuments) {
         var headTimestamp = new LinkedList<>(eventDocuments).getLast().timestamp();
         var headEventIds = eventDocuments.stream()
-                .filter(eventDocument -> eventDocument.timestamp().equals(headTimestamp))
+                .filter(eventDocument -> eventDocument.timestamp()
+                        .truncatedTo(ChronoUnit.SECONDS)
+                        .equals(headTimestamp.truncatedTo(ChronoUnit.SECONDS)))
                 .map(EventDocument::eventId).toList();
 
         headCollection.updateOne(

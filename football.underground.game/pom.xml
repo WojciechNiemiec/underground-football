@@ -22,12 +22,12 @@
         <dependency>
             <groupId>football.underground</groupId>
             <artifactId>eventsourcing</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>football.underground</groupId>
             <artifactId>wallet</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 </project>
