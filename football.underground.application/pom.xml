@@ -8,10 +8,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>app</artifactId>
+    <artifactId>application</artifactId>
     <packaging>jar</packaging>
 
-    <name>app</name>
+    <name>application</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -20,7 +20,7 @@
         <micronaut.aot.enabled>true</micronaut.aot.enabled>
         <micronaut.aot.packageName>example.micronaut.aot.generated</micronaut.aot.packageName>
         <micronaut.runtime>google_function</micronaut.runtime>
-        <exec.mainClass>football.underground.app.Application</exec.mainClass>
+        <exec.mainClass>football.underground.application.App</exec.mainClass>
     </properties>
 
     <dependencies>

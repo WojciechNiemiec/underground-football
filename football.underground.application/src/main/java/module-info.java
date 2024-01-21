@@ -1,10 +1,10 @@
 import football.underground.game.api.GameServicesFactory;
 import football.underground.wallet.api.WalletServicesFactory;
 
-module football.underground.app {
-    opens football.underground.app;
-    opens football.underground.app.api;
-    opens football.underground.app.infrastructure;
+module football.underground.application {
+    opens football.underground.application;
+    opens football.underground.application.api;
+    opens football.underground.application.infrastructure;
 
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;

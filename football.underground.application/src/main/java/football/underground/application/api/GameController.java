@@ -1,4 +1,4 @@
-package football.underground.app.api;
+package football.underground.application.api;
 
 import java.time.Duration;
 import java.time.Instant;

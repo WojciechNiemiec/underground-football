@@ -1,4 +1,4 @@
-package football.underground.app.infrastructure;
+package football.underground.application.infrastructure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

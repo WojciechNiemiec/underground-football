@@ -12,7 +12,7 @@
         <module>football.underground.eventsourcing</module>
         <module>football.underground.game</module>
         <module>football.underground.wallet</module>
-        <module>football.underground.app</module>
+        <module>football.underground.application</module>
     </modules>
 
     <properties>

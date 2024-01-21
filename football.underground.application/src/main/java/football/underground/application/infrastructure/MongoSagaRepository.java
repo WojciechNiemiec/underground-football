@@ -1,4 +1,4 @@
-package football.underground.app.infrastructure;
+package football.underground.application.infrastructure;
 
 import java.util.Objects;
 import java.util.UUID;
