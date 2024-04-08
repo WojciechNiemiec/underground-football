@@ -27,6 +27,7 @@ module football.underground.application {
     requires org.mongodb.driver.sync.client;
 
     requires org.slf4j;
+    requires functions.framework.api;
 
     uses GameServicesFactory;
     uses WalletServicesFactory;
