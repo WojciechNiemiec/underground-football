@@ -15,10 +15,10 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <java.version>17</java.version>
-        <micronaut.version>4.2.3</micronaut.version>
+        <jdk.version>25</jdk.version>
+        <micronaut.version>4.10.3</micronaut.version>
         <micronaut.aot.enabled>true</micronaut.aot.enabled>
-        <micronaut.aot.packageName>example.micronaut.aot.generated</micronaut.aot.packageName>
+        <micronaut.aot.packageName>football.underground.application</micronaut.aot.packageName>
         <micronaut.runtime>google_function</micronaut.runtime>
         <exec.mainClass>football.underground.application.App</exec.mainClass>
     </properties>
@@ -88,35 +88,48 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>com.google.cloud.functions</groupId>
                 <artifactId>function-maven-plugin</artifactId>
+                <version>1.0.0</version>
                 <configuration>
                     <functionTarget>io.micronaut.gcp.function.http.HttpFunction</functionTarget>
+                    <deploy.setbuildenvvars>-Dmodule-path=target/modules
+                        -Dmodule=${project.build.directory}/football.underground.game
+                    </deploy.setbuildenvvars>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>io.micronaut.maven</groupId>
                 <artifactId>micronaut-maven-plugin</artifactId>
+                <version>4.4.0</version>
                 <configuration>
                     <configFile>aot-${packaging}.properties</configFile>
                 </configuration>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <mainClass>com.example.Application</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <annotationProcessorPaths combine.children="append">
+                    <annotationProcessorPaths>
+                        <!-- synthetic class generation -->
                         <path>
                             <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-http-validation</artifactId>
+                            <artifactId>micronaut-inject-java</artifactId>
                             <version>${micronaut.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Amicronaut.processing.group=football.underground.application</arg>
+                        <arg>-Amicronaut.processing.module=football.underground.application</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,0 +1,30 @@
+meta {
+  name: Game Confirmations
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/game-api/v1-beta/games/5d1d017d-3d1c-493a-8995-13548aeaae88/confirmations
+  body: json
+  auth: inherit
+}
+
+headers {
+  X-Identity-Id: f5e8cb2f-1ee3-4c72-96f3-ef48d711bd50
+}
+
+body:json {
+  {
+    "fee": {
+      "value": 30,
+      "currency": "PLN"
+    }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

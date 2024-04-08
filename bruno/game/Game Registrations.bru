@@ -1,0 +1,30 @@
+meta {
+  name: Game Registrations
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/game-api/v1-beta/games/5d1d017d-3d1c-493a-8995-13548aeaae88/registrations
+  body: json
+  auth: inherit
+}
+
+headers {
+  X-Identity-Id: 115e3c6b-f43a-4467-b013-a06d0ce10538
+}
+
+body:json {
+  {
+    "fee": {
+      "value": 30,
+      "currency": "PLN"
+    }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

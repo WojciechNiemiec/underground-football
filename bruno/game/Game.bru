@@ -1,0 +1,32 @@
+meta {
+  name: Game
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/game-api/v1-beta/games
+  body: json
+  auth: inherit
+}
+
+headers {
+  X-Identity-Id: f5e8cb2f-1ee3-4c72-96f3-ef48d711bd50
+}
+
+body:json {
+  {
+    "locationId": "2d09e44d-f676-4cdf-afff-f73546bb67ce",
+    "date": "2025-12-31T12:00:00.000Z",
+    "duration": "PT1H30M",
+    "settlementStrategy": "MANUAL",
+    "minPlayers": 14,
+    "maxPlayers": 16
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

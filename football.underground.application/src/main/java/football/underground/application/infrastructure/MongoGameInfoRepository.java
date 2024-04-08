@@ -47,10 +47,10 @@ class MongoGameInfoRepository implements GameInfoRepository {
             match.append("state", state);
         }
         if (locationId != null) {
-            match.append("locationId", locationId.toString());
+            match.append("locationId", locationId);
         }
         if (organizerId != null) {
-            match.append("organizerId", organizerId.toString());
+            match.append("organizerId", organizerId);
         }
 
         List<GameProjection.GameInfo> gameInfos = gameCollection.aggregate(List.of(

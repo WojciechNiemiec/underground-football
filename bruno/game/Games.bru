@@ -1,0 +1,22 @@
+meta {
+  name: Games
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8080/game-api/v1-beta/games
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~state: INITIALIZED
+  ~locationId: 2d09e44d-f676-4cdf-afff-f73546bb67ce
+  ~organizerId: f5e8cb2f-1ee3-4c72-96f3-ef48d711bd50
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

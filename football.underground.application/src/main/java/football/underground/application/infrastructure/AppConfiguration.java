@@ -22,7 +22,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.inject.Singleton;
 
 @Factory
-class AppConfiguration {
+public class AppConfiguration {
     private final EventRepository<UUID> eventRepository;
     private final ObjectMapper objectMapper;
     private final MongoClient mongoClient;
@@ -42,26 +42,26 @@ class AppConfiguration {
     }
 
     @Singleton
-    GameAccessor gameAccessor(WalletAccessor walletAccessor) {
-        return getWalletServicesFactory(GameServicesFactory.class)
-                .gameAccessor(eventRepository, new MongoSagaRepository(database), walletAccessor);
+    GameAccessor gameAccessor() {
+        return getServicesFactory(GameServicesFactory.class)
+                .gameAccessor(eventRepository, new MongoSagaRepository(database), null);
     }
 
     @Singleton
     GameProjection gameProjection() {
-        return getWalletServicesFactory(GameServicesFactory.class)
+        return getServicesFactory(GameServicesFactory.class)
                 .gameProjection(eventRepository, new MongoGameInfoRepository(database));
     }
 
     @Singleton
     WalletAccessor walletAccessor() {
-        return getWalletServicesFactory(WalletServicesFactory.class)
+        return getServicesFactory(WalletServicesFactory.class)
                 .walletAccessor(eventRepository);
     }
 
     @Singleton
     WalletProjection walletProjection() {
-        return getWalletServicesFactory(WalletServicesFactory.class)
+        return getServicesFactory(WalletServicesFactory.class)
                 .walletProjection(eventRepository, new MongoWalletInfoRepository(database));
     }
 
@@ -75,7 +75,7 @@ class AppConfiguration {
         mongoClient.close();
     }
 
-    private static <T> T getWalletServicesFactory(Class<T> clazz) {
+    private static <T> T getServicesFactory(Class<T> clazz) {
         return ServiceLoader.load(clazz)
                 .findFirst()
                 .orElseThrow();

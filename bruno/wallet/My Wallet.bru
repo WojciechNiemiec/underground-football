@@ -1,0 +1,20 @@
+meta {
+  name: My Wallet
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8080/wallet-api/v1-beta/my-wallet
+  body: none
+  auth: inherit
+}
+
+headers {
+  X-Identity-Id: f5e8cb2f-1ee3-4c72-96f3-ef48d711bd50
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

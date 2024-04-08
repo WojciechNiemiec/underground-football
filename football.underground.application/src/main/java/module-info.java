@@ -14,11 +14,6 @@ module football.underground.application {
     requires football.underground.game;
     requires football.underground.wallet;
 
-    requires io.micronaut.context;
-    requires io.micronaut.http;
-    requires io.micronaut.core;
-    requires io.micronaut.inject;
-
     requires jakarta.annotation;
     requires jakarta.inject;
 
@@ -27,6 +22,11 @@ module football.underground.application {
     requires org.mongodb.driver.sync.client;
 
     requires org.slf4j;
+    requires functions.framework.api;
+    requires io.micronaut.micronaut_inject;
+    requires io.micronaut.micronaut_core;
+    requires io.micronaut.micronaut_http;
+    requires io.micronaut.micronaut_context;
 
     uses GameServicesFactory;
     uses WalletServicesFactory;

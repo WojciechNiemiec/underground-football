@@ -10,6 +10,7 @@ import football.underground.game.api.GameProjection.GamePage;
 import football.underground.game.api.SettlementStrategy;
 import football.underground.wallet.api.MoneyAmount;
 import io.micronaut.core.annotation.Introspected;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -35,9 +36,9 @@ class GameController {
     GamePage lookup(
             @QueryValue(defaultValue = "0") int page,
             @QueryValue(defaultValue = "100") int pageSize,
-            @QueryValue String state,
-            @QueryValue UUID locationId,
-            @QueryValue UUID organizerId
+            @QueryValue @Nullable String state,
+            @QueryValue @Nullable UUID locationId,
+            @QueryValue @Nullable UUID organizerId
     ) {
         return gameProjection.getGames(page, pageSize, state, locationId, organizerId);
     }

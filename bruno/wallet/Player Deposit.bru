@@ -1,0 +1,30 @@
+meta {
+  name: Player Deposit
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/wallet-api/v1-beta/players/f5e8cb2f-1ee3-4c72-96f3-ef48d711bd50/deposits
+  body: json
+  auth: inherit
+}
+
+headers {
+  X-Identity-Id: f5e8cb2f-1ee3-4c72-96f3-ef48d711bd50
+}
+
+body:json {
+  {
+    "amount": {
+      "value": 100,
+      "currency": "PLN"
+    }
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
